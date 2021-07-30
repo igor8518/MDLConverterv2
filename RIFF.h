@@ -38,6 +38,7 @@ public:
 	float RADI;
 
 	std::vector<std::wstring>* TEXT;
+	std::vector<SPBRM>* PBRM;
 	std::vector<SMAT3>* MAT3;
 	std::vector<SEMT1>* EMT1;
 	std::vector<SIND3>* IND3;

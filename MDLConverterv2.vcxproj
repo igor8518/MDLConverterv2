@@ -19,17 +19,17 @@
     <ProjectGuid>{6671F0BA-6FB8-4f35-8392-0676D05113A8}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <MaxSDK>C:\Program Files\Autodesk\3ds Max 2018 SDK\maxsdk</MaxSDK>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Hybrid|x64'">
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(MaxSDK)\ProjectSettings\PropertySheets\3dsmax.general.project.settings.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -38,14 +38,14 @@
   </ImportGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Platform)'=='x64'">I:\Program Files\Autodesk\3ds Max 2018\Plugins\</OutDir>
+    <OutDir Condition="'$(Platform)'=='x64'">X:\Program Files\Autodesk\3ds Max 2021\Plugins</OutDir>
     <IntDir>$(ProjectDir)\obj\$(MaxPlatform)\$(MaxConfiguration)\</IntDir>
     <TargetName>MDLConverterv2</TargetName>
     <TargetExt>.dli</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\igor8\source\repos\MDLConverterv2\pugixml-1.9\src;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\igor8\source\repos\MDLConverterv2\pugixml-1.9\scripts\vs2015\x64_Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\igor8\source\repos\json-develop\include;C:\Users\igor8\source\repos\MDLConverterv2\pugixml-1.9\src;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\igor8\source\repos\MDLConverterv2\pugixml-1.9\scripts\vs2017\x64_Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\Users\igor8\source\repos\MDLConverterv2\pugixml-1.9\src;$(IncludePath)</IncludePath>
@@ -55,13 +55,13 @@
     <ClCompile>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MaxSdkInc);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\3ds Max 2021 SDK\maxsdk\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Async</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Async</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(MaxSdkLib);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\3ds Max 2021 SDK\maxsdk\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;paramblk2.lib;pugixml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>MDLConverterv2.def</ModuleDefinitionFile>
     </Link>
@@ -71,6 +71,7 @@
     <ClCompile Include="DllEntry.cpp" />
     <ClCompile Include="MDLImport.cpp" />
     <ClCompile Include="P3DMaterial.cpp" />
+    <ClCompile Include="PBRMaterial.cpp" />
     <ClCompile Include="ReadStream.cpp" />
     <ClCompile Include="RIFF.cpp" />
     <ClCompile Include="WriteStream.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="MDLConverterv2.h" />
     <ClInclude Include="MDLImport.h" />
     <ClInclude Include="P3DMaterial.h" />
+    <ClInclude Include="PBRMaterial.h" />
     <ClInclude Include="ReadStream.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RIFF.h" />

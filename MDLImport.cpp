@@ -15,17 +15,19 @@ std::wstring MDLImport::GetRegKey(HKEY hKey, std::wstring subKey, std::wstring v
 	}
 	return wstring(Reget);
 }
+
+
 int MDLImport::GetPaths()
 {
 	wstring value = L"";
 
-	value = GetRegKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Lockheed Martin\\Prepar3D v4", L"SetupPath");
+	value = GetRegKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Lockheed Martin\\Prepar3D v5", L"SetupPath");
 	if (value == L"")
 	{
 		return -1;
 	}
 	EffectPath = value + L"\\Effects\\";
-	value = GetRegKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Lockheed Martin\\Prepar3D v4 SDK", L"SetupPath");
+	value = GetRegKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Lockheed Martin\\Prepar3D v5 SDK", L"SetupPath");
 	if (value == L"")
 	{
 		return -1;
@@ -39,8 +41,18 @@ int MDLImport::GetPaths()
 SModelDefXML MDLImport::ReadModelDef()
 {
 	SModelDefXML lModelDefXml;
-	AnimationXML = new std::vector<SAnimation>();
-	PartInfoXML = new std::vector<SPartInfo>();
+	if (AnimationXML) {
+		AnimationXML->clear();
+	} 
+	else {
+		AnimationXML = new std::vector<SAnimation>();
+	}
+	if (PartInfoXML) {
+		PartInfoXML->clear();
+	}
+	else {
+		PartInfoXML = new std::vector<SPartInfo>();
+	}
 	//BadSec.reset(new std::vector<UINT>());
 	
 
@@ -193,7 +205,7 @@ SModelDefXML MDLImport::ReadModelDef()
 	return lModelDefXml;
 }
 
-MDLImport::MDLImport(const TCHAR * filename, ImpInterface * i, Interface * gi, BOOL suppressPrompts)
+MDLImport::MDLImport(const TCHAR* filename, ImpInterface* i, Interface* gi, BOOL suppressPrompts)
 {
 	this->i = i;
 	this->gi = gi;
@@ -209,17 +221,17 @@ MDLImport::MDLImport(const TCHAR * filename, ImpInterface * i, Interface * gi, B
 	BadSec = new vector<UINT>();
 	//Textures = new vector<std::wstring>();
 	//NodeParts = new std::vector<SParts>();
-	Mtls = new std::vector<StdMat2*>();
+	Mtls = new std::vector<Mtl*>();
 
 	GetPaths();
 	ModelXML = ReadModelDef();
 
 	riff = new RIFF(this, filename, i, gi, 1);
 
-	
+
 
 	ModelName = riff->ModelName;
-	
+
 	tmO.RotateX(deg2rad(90.0));
 	//FindAndCopyTextures();
 	CreateMtlLib();
@@ -230,18 +242,30 @@ MDLImport::MDLImport(const TCHAR * filename, ImpInterface * i, Interface * gi, B
 	{
 		INode* nodeLOD = CreateDummy(ModelName + L"_LOD_" + std::to_wstring(riff->LODT->at(j).LOD));
 		nodeExt->AttachChild(nodeLOD);
-		CreateNode(0, -1, nodeLOD, NULL, NULL, j,L"");
+		CreateNode(0, -1, nodeLOD, NULL, NULL, j, L"");
 		SetSkin();
 	}
 
-	delete riff;
-	riff = NULL;
 
+	
+}
+
+void MDLImport::DelMem(void** p)
+{
+	if (*p) {
+		delete *p;
+		*p = NULL;
+	}
 }
 
 
 MDLImport::~MDLImport()
 {
+	DelMem((void**)&AnimationXML);
+	DelMem((void**)&PartInfoXML);
+	DelMem((void**)&riff);
+	DelMem((void**)&BadSec);
+	DelMem((void**)&Mtls);
 }
 
 
@@ -519,7 +543,8 @@ INode* MDLImport::DrawPart(SPART* part, int LOD, int PartNo, std::wstring nameAn
 
 	tempVert = new std::vector<Point3>();
 	tempVertN = new std::vector<Point3>();
-	tempInd = new std::vector<int>(part->vertex_count);
+  //
+	tempInd = new std::vector<int>(part->index_count);
 	for (int ii = 0; ii < part->vertex_count; ii++)
 	{
 		bool find = false;
@@ -658,11 +683,13 @@ INode* MDLImport::DrawPart(SPART* part, int LOD, int PartNo, std::wstring nameAn
 	ns->SetNumFaces(part->index_count / 3);
 	for (int ii = 0; ii < (part->index_count / 3); ii++)
 	{
-
+    int indd3 = inde->at(ii + part->index_offset / 3).ind3;
+    int indd2 = inde->at(ii + part->index_offset / 3).ind2;
+    int indd1 = inde->at(ii + part->index_offset / 3).ind1;
 		mesh->faces[ii].setVerts(
-			tempInd->at((inde->at(ii + part->index_offset / 3).ind3)),
-			tempInd->at((inde->at(ii + part->index_offset / 3).ind2)),
-			tempInd->at((inde->at(ii + part->index_offset / 3).ind1)));
+			tempInd->at(indd3),
+			tempInd->at(indd2),
+			tempInd->at(indd1));
 		mesh->faces[ii].setEdgeVisFlags(1, 1, 1);
 
 		
@@ -716,6 +743,7 @@ INode* MDLImport::DrawPart(SPART* part, int LOD, int PartNo, std::wstring nameAn
 		return FALSE;
 	}
 	node->SetMtl(Mtls->at(part->material_index));
+	//Mtl* editMat = node->GetMtl();
 
 	lNodeParts.LOD = LOD;
 	lNodeParts.node = node;
@@ -1403,7 +1431,7 @@ bool MDLImport::FindAndCopyTextures()
 	std::wstring base_dir1 = wp.substr(0, wp.find_last_of(L"/\\") + 1);
 	std::wstring base = wp.substr(0, wp.find_last_of(L"/\\"));
 	base = base.substr(0, base.find_last_of(L"/\\") + 1);
-	std::wstring base_dir2 = base.substr(0, wp.find_last_of(L"/\\") + 1) + L"texture.nordstar\\";
+	std::wstring base_dir2 = base.substr(0, wp.find_last_of(L"/\\") + 1) + L"texture\\";
 
 	std::wstring TextureCFG = base_dir2 + L"texture.cfg";
 	
@@ -1529,7 +1557,14 @@ bool MDLImport::CreateMtlLib()
 		bmt->SetAlphaAsMono(true);
 		StdUVGen *uv = bmt->GetUVGen();
 //#if _DEBUG
-		//uv->SetVScl(-1.0, 0);
+		auto pos = Textures->at(i).rfind(L".");
+		if (pos == std::wstring::npos)
+			pos = -1;
+		wstring ext = std::wstring(Textures->at(i).begin() + pos, Textures->at(i).end());
+		std::transform(ext.begin(), ext.end(), ext.begin(), ::toupper);
+		if (ext == L".DDS") {
+			uv->SetVScl(-1.0, 0);
+		}
 //#else
 		//uv->SetVScl(1.0, 0);
 //#endif
@@ -1559,6 +1594,27 @@ bool MDLImport::CreateMtlLib()
 			//std::wstring widestr = std::wstring(TexName.begin(), TexName.end());
 			//const wchar_t* widecstr = widestr.c_str();
 			mtl->BaseMat->SetName(WStr(TexName.c_str()));
+		}
+		Mtls->push_back(mtl->BaseMat);
+	}
+
+	for (int i = 0; i < riff->PBRM->size(); i++)
+	{
+		SPBRM lMat = riff->PBRM->at(i);
+		PBRMaterial* mtl = NewPBRMat();
+		mtl->ConvertPBRMaterials(&lMat, bt);
+
+		if (riff->TEXT->size() > 0)
+		{
+			if (lMat.albedoTextureIndex >= 0) {
+				std::wstring TexName = Textures->at(lMat.albedoTextureIndex);
+				//std::wstring widestr = std::wstring(TexName.begin(), TexName.end());
+				//const wchar_t* widecstr = widestr.c_str();
+				mtl->BaseMat->SetName(WStr(TexName.c_str()));
+			}
+			else {
+				mtl->BaseMat->SetName(WStr(L"Mat #No_name"));
+			}
 		}
 		Mtls->push_back(mtl->BaseMat);
 	}

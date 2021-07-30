@@ -4,6 +4,7 @@
 #include "Structures.h"
 #include "RIFF.h"
 #include "P3DMaterial.h"
+#include "PBRMaterial.h"
 
 using namespace std;
 
@@ -14,6 +15,7 @@ class MDLImport
 
 public:
 	MDLImport(const TCHAR * filename, ImpInterface * i, Interface * gi, BOOL suppressPrompts);
+	
 	~MDLImport();
 
 	double				deg2rad(double degrees);
@@ -56,7 +58,7 @@ public:
 
 	std::vector<SParts>* NodeParts = new std::vector<SParts>();
 	vector<INode*>* Bones = new std::vector<INode*>();
-	vector<StdMat2*>* Mtls = new std::vector<StdMat2*>();
+	vector<Mtl*>* Mtls = new std::vector<Mtl*>();
 	vector<std::wstring>* Textures = new std::vector<std::wstring>();
 	//BitmapTex* bmt = NULL;
 
@@ -78,8 +80,9 @@ public:
 
 	RIFF* riff;
 protected:
-	vector<SAnimation>* AnimationXML;
-	vector<SPartInfo>* PartInfoXML;
-	std::vector<UINT>* BadSec;
+	void DelMem(void** p);
+	vector<SAnimation>* AnimationXML = NULL;
+	vector<SPartInfo>* PartInfoXML = NULL;
+	std::vector<UINT>* BadSec = NULL;
 };
 

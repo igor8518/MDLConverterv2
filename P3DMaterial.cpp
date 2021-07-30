@@ -10,7 +10,7 @@ P3DMaterial * NewP3DMat()
 	Interface *gi = GetCOREInterface();
 	P3DMaterial* p3d = new P3DMaterial();
 	p3d->BaseMat = (StdMat2*)gi->CreateInstance(MATERIAL_CLASS_ID, P3DMat);
-
+	
 	if (p3d->BaseMat)
 	{
 		return p3d;
@@ -28,7 +28,7 @@ int P3DMaterial::ConvertPrepar3DMaterials(SMAT3 * mate, SEMT1* emate, std::vecto
 	ParamDef mc;
 	PB->SetValue(desc->NameToIndex(L"bNoSpecularBloom"), 0, bNoSpecularBloom, 0);
 
-	bNoBaseMaterialSpecular = material_is_specular & mate->material_flags ? false : true;
+	bNoBaseMaterialSpecular = material_is_specular & mate->material_flags ? true : false;
 	PB->SetValue(desc->NameToIndex(L"bNoBaseMaterialSpecular"), 0, bNoBaseMaterialSpecular, 0);
 
 	bmaterial_has_a_diffuse_texture = material_has_a_diffuse_texture & mate->material_flags ? true : false;

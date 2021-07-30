@@ -14,6 +14,10 @@
 #include <cstdlib>
 #include <math.h>
 #include <stdmat.h>
+#include <IDxMaterial.h>
+#include <plugin.h>
+#include <maxscript/mxsplugin/mxsPlugin.h>
+
 
 #include "resource.h"
 #include <istdplug.h>
@@ -220,6 +224,58 @@ struct SMAT3
 	float final_alpha_multiply;
 	float zbias;
 };
+
+struct SPBRM
+{
+	int    material_flags;			//
+	float  albedo_color_R;			// Albedo color
+	float  albedo_color_G;			//
+	float  albedo_color_B;			//
+	float  albedo_color_A;			//
+	float  metallic;						//
+	float  smoothness;					//
+	int		 renderMode;					//  (0-Opaque;1-Masked;2-Translucent)
+	int		 smoothnessSource;		//	(0-AlbedoAlpha;1-MetallicAlpha)
+	int		 emissiveMode;				//	(0 - Additive; 1 - AdditiveNightOnly)
+	float  maskedThreshold;			//
+	int    albedoTextureIndex;	// Albedo texture
+	int    metallicTextureIndex;// Metallic texture
+	int    bumpTextureIndex;		// Bump texture
+	int    emissiveTextureIndex;// Emissive texture
+	int    detailTextureIndex;	// Detail texture  
+	int		 diffuseUVchannel;		// 
+	int		 metallicUVchannel;		//
+	int		 bumpUVchannel;				//
+	int		 emissiveUVchannel;		//
+	int		 detailUVchannel;	  	//
+	int  zBias;								//
+	float	 detailScaleX;				//
+	float	 detailScaleY;				//
+	float	 normalScaleX;				//
+	float	 normalScaleY;				//	
+	int unk1;
+	int unk2;
+	int unk3;
+	int unk4;
+	int unk5;
+	int unk6;
+	int unk7;
+	int unk8;
+	int unk9;
+	int unk10;
+	int unk11;
+	int unk12;
+	int unk13;
+	int unk14;
+	int unk15;
+	int unk16;
+	int unk17;
+	int unk18;
+	int unk19;
+	int unk20;
+};
+
+
 struct SEMT1
 {
 	float TemperatureScale;

@@ -12,8 +12,10 @@ class ReadStream
 {
 private:
 	//Приватное поле - файл
-	std::ifstream f;
+	
 public:
+	std::ifstream f;
+	std::ifstream* GetStream();
 	ReadStream(std::wstring filename);
 	~ReadStream();
 	HRESULT Read(PVOID64 buffer, INT64 seek, INT64 count);

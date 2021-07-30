@@ -2,6 +2,13 @@
 
 
 
+
+std::ifstream* ReadStream::GetStream()
+{
+	f.seekg(0, std::ios::beg);
+	return &f;
+}
+
 ReadStream::ReadStream(std::wstring filename)
 {
 	f.open(filename, std::ios::in | std::ios::binary);

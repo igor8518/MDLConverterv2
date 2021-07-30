@@ -36,6 +36,9 @@
     <ClCompile Include="MDLImport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PBRMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MDLConverterv2.def">
@@ -68,6 +71,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Structures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PBRMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

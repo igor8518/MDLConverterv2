@@ -14,8 +14,9 @@
 
 #include "MDLConverterv2.h"
 #include <memory>
+#include <nlohmann/json.hpp>
 using namespace std;
-
+using json = nlohmann::json;
 
 #define MDLConverterv2_CLASS_ID	Class_ID(0x9a4c648d, 0x54080edb)
 
@@ -99,37 +100,38 @@ MDLConverterv2::~MDLConverterv2()
 int MDLConverterv2::ExtCount()
 {
 	#pragma message(TODO("Returns the number of file name extensions supported by the plug-in."))
-	return 1;
+	return 3;
 }
 
-const TCHAR *MDLConverterv2::Ext(int /*n*/)
-{		
-	#pragma message(TODO("Return the 'i-th' file name extension (i.e. \"3DS\")."))
-	return _T("MDL");
+const TCHAR* MDLConverterv2::Ext(int n)
+{
+#pragma message(TODO("Return the 'i-th' file name extension (i.e. \"3DS\")."))
+	wchar_t *ext[] = {L"MDL", L"BGL", L"GLTF"};
+	return ext[n];
 }
 
 const TCHAR *MDLConverterv2::LongDesc()
 {
 	#pragma message(TODO("Return long ASCII description (i.e. \"Targa 2.0 Image File\")"))
-	return _T("Flight Simulator X MDL File");
+	return _T("Flight Simulator and Prepar3D Files");
 }
 	
 const TCHAR *MDLConverterv2::ShortDesc() 
 {			
 	#pragma message(TODO("Return short ASCII description (i.e. \"Targa\")"))
-	return _T("RIFF Model");
+	return _T("MSFS & Prepar3D Model");
 }
 
 const TCHAR *MDLConverterv2::AuthorName()
 {			
 	#pragma message(TODO("Return ASCII Author name"))
-	return _T("Igor M.");
+	return _T("Migo Studio");
 }
 
 const TCHAR *MDLConverterv2::CopyrightMessage() 
 {	
 	#pragma message(TODO("Return ASCII Copyright message"))
-	return _T("");
+	return _T("Migo Studio with Igor Milovidov");
 }
 
 const TCHAR *MDLConverterv2::OtherMessage1() 
@@ -147,7 +149,7 @@ const TCHAR *MDLConverterv2::OtherMessage2()
 unsigned int MDLConverterv2::Version()
 {				
 	#pragma message(TODO("Return Version number * 100 (i.e. v3.01 = 301)"))
-	return 025;
+	return 027;
 }
 
 void MDLConverterv2::ShowAbout(HWND /*hWnd*/)
@@ -161,30 +163,83 @@ int MDLConverterv2::DoImport(const TCHAR * filename, ImpInterface * i, Interface
 	
 	char RIFFSign[4];
 	char RIFFVer[4];
+
+	int BGLMag1;
+	int BGLMag2;
+
+	json j;
+
 	ReadStream* RIFFStream = new ReadStream(filename);
 	RIFFStream->Read(&RIFFSign, 0, 4);
 	RIFFStream->Read(&RIFFVer, 8, 4);
-	RIFFStream;
 
-	if (RIFF::UINT2(RIFFSign) == UINT('RIFF'))
-	{
-		if (RIFF::UINT2(RIFFVer) == UINT('MDLX') ||
-			RIFF::UINT2(RIFFVer) == UINT('PV20'))
+	RIFFStream->Read(&BGLMag1, 0, 4);
+	RIFFStream->Read(&BGLMag2, 0x10, 4);
+
+	wstring sfilename = wstring(filename);
+	auto pos = sfilename.rfind(L".");
+	if (pos == std::wstring::npos)
+		pos = -1;
+	wstring ext =  std::wstring(sfilename.begin() + pos, sfilename.end());
+	std::transform(ext.begin(), ext.end(), ext.begin(), ::toupper);
+	
+	if (ext == L".MDL") {
+		if (RIFF::UINT2(RIFFSign) == UINT('RIFF'))
 		{
-			MDLImport* MDL = new MDLImport(filename, i, gi, suppressPrompts);
-			delete MDL;
-			MDL = NULL;
+			if (RIFF::UINT2(RIFFVer) == UINT('MDLX') ||
+				RIFF::UINT2(RIFFVer) == UINT('PV20') ||
+				RIFF::UINT2(RIFFVer) == UINT('PV44'))
+			{
+				MDLImport* MDL = new MDLImport(filename, i, gi, suppressPrompts);
+				delete MDL;
+				MDL = NULL;
+			}
+			else
+			{
+				std::string s = std::string(RIFFVer, 4);
+				MessageBoxEx(0, std::wstring(L"Not supported RIFF version \'" + std::wstring(s.begin(), s.end()) + L"\'").c_str(), L"RIFF Not supported", MB_OK, 0);
+				return -1;
+			}
 		}
 		else
 		{
-			std::string s = std::string(RIFFVer,4);
-			MessageBoxEx(0, std::wstring(L"Not supported RIFF version \'" + std::wstring(s.begin(), s.end()) + L"\'").c_str(), L"RIFF Not supported", MB_OK, 0);
+			MessageBoxEx(0, L"Not supported MDL File", L"Error", MB_OK, 0);
 			return -1;
 		}
 	}
-	else
-	{
-		MessageBoxEx(0, L"Not supported MDL File", L"Error", MB_OK, 0);
+	else if (ext == L".BGL") {
+		if ((BGLMag1 == 0x19920201) && (BGLMag2 == 0x08051803)) {
+			MessageBoxEx(0, L"BGL File not supported at this time", L"Information", MB_OK, 0);
+			return -1;
+		}
+		else {
+			MessageBoxEx(0, L"Not supported BGL File", L"Error", MB_OK, 0);
+			return -1;
+		}
+	}
+	else if (ext == L".GLTF") {
+		bool err = false;
+		try {
+#pragma warning(suppress : 4996) 		
+			* RIFFStream->GetStream() >> j;
+		}
+		catch (...)
+		{
+			err = true;
+			std::wcout << "ERROR";
+		}
+		if (!err) {
+			MessageBoxEx(0, L"GLTF File not supported at this time", L"Information", MB_OK, 0);
+			return -1;
+		}
+		else {
+			MessageBoxEx(0, L"Not supported GLTF File", L"Error", MB_OK, 0);
+			return -1;
+		}
+		return -1;
+	}
+	else {
+		MessageBoxEx(0, L"Not supported File format", L"Error", MB_OK, 0);
 		return -1;
 	}
 	

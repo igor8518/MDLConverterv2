@@ -12,6 +12,7 @@ RIFF::RIFF(MDLImport* mdlImport, const TCHAR * filename, ImpInterface * i, Inter
 	RIFFStream = new ReadStream(filename);
 	TEXT = new std::vector<std::wstring>();
 	MAT3 = new std::vector<SMAT3>();
+	PBRM = new std::vector<SPBRM>();
 	EMT1 = new std::vector<SEMT1>();
 	IND3 = new std::vector<SIND3>();
 	INDE = new std::vector<SINDE>();
@@ -387,6 +388,18 @@ HRESULT RIFF::ReadSection(int parent)
 			int temp = sizeof(lMAT3);
 			Seek = Seek + sizeof(lMAT3);
 			MAT3->push_back(lMAT3);
+		}
+		break;
+	}
+	case (UINT('PBRM')):
+	{
+		while (Seek < EndSection)
+		{
+			SPBRM lPBRM;
+			RIFFStream->Read(&lPBRM, Seek, sizeof(lPBRM));
+			int temp = sizeof(lPBRM);
+			Seek = Seek + sizeof(lPBRM);
+			PBRM->push_back(lPBRM);
 		}
 		break;
 	}
